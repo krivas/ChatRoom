@@ -8,7 +8,9 @@ import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { RegisterComponent } from './register/register.component';
 import { LogInComponent as LogInComponent } from './logIn/logIn.component';
-import { FetchDataComponent } from './fetch-data/fetch-data.component';
+import { FetchDataComponent as ChatComponent } from './chat/chat.component';
+import { AuthActivator } from 'src/Services/auth-activator.service';
+import { RegisterUserService } from 'src/Services/register-user.service';
 
 @NgModule({
   declarations: [
@@ -16,19 +18,20 @@ import { FetchDataComponent } from './fetch-data/fetch-data.component';
     NavMenuComponent,
     RegisterComponent,
     LogInComponent,
-    FetchDataComponent
+    ChatComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { path: '', component: RegisterComponent, pathMatch: 'full' },
-      { path: 'counter', component: LogInComponent },
-      { path: 'fetch-data', component: FetchDataComponent },
+      { path: 'Register', component: RegisterComponent, pathMatch: 'full' },
+      { path: '', component: LogInComponent },
+      { path: 'Chat', component: ChatComponent },
     ])
   ],
-  providers: [],
+  providers: [RegisterUserService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+//canActivate:[AuthActivator]

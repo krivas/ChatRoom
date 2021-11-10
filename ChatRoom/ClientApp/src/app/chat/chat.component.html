@@ -1,0 +1,49 @@
+<app-nav-menu></app-nav-menu>
+
+<h1 id="tableLabel">Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+<p *ngIf="!chats"><em>Loading...</em></p>
+
+
+<div class="card">
+  <div class="card-header">
+    Chat 
+  </div>
+  <div class="card-body">
+    <blockquote class="blockquote mb-0">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+      <table class='table table-striped' aria-labelledby="tableLabel" *ngIf="chats">
+        <thead>
+          <tr>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let chat of chats">
+            <td><b>{{ chat.user }}: </b>{{ chat.message }}</td>
+          </tr>
+        </tbody>
+        
+      </table>
+      <footer>
+        <form #form="ngForm">
+          <div class="form-group row">
+            <div class="col-md-10">
+              <input type="text" #message="ngModel" [(ngModel)] ="chat.message" class="form-control" placeholder="Message" name="message">
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="form-control btn btn-primary" (click)="send()">
+              Send
+              </button>
+          </div>
+        </div>
+        </form>
+       
+      </footer>
+    </blockquote>
+  </div>
+</div>
+
+

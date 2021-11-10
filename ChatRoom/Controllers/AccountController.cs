@@ -8,24 +8,25 @@ using System.Threading.Tasks;
 
 namespace ChatRoom.Controllers
 {
+    [ApiController]
     public class AccountController : Controller
     {
         private readonly IAuthenticationService _authenticationService;
+      
         public AccountController(IAuthenticationService authenticationService)
         {
             _authenticationService = authenticationService;
         }
 
         [HttpPost("authenticate")]
-        public async Task<ActionResult<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
+        public async Task<ActionResult<AuthenticationResponse>> AuthenticateAsync([FromBody] AuthenticationRequest request)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
                     var response = await _authenticationService.AuthenticateAsync(request);
-                    
-                    return Ok(response);
+                       return Ok(response);
                 }
                 else
                     return StatusCode(400);
@@ -37,8 +38,8 @@ namespace ChatRoom.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<RegistrationResponse>> RegisterAsync(RegistrationRequest request)
-        {
+        public async Task<ActionResult<RegistrationResponse>> RegisterAsync([FromBody]  RegistrationRequest request)
+         {
             try
             {
                 if (ModelState.IsValid)
@@ -47,7 +48,7 @@ namespace ChatRoom.Controllers
                     return Ok(response);
                 }
                 else
-                    return StatusCode(400);
+                    return BadRequest();
             }
             catch (Exception e)
             {

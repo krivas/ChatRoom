@@ -21,37 +21,40 @@ namespace ChatRoom.Data.Services
         public async Task<AuthenticationResponse> AuthenticateAsync(AuthenticationRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
+            var response = new AuthenticationResponse();
+            response.Code = 0;
 
             if (user == null)
             {
-                throw new Exception($"User with {request.Email} not found.");
+                response.Description=$"User with {request.Email} not found.";
+                return response;
             }
 
             var result = await _signInManager.PasswordSignInAsync(user.UserName, request.Password, false, lockoutOnFailure: false);
 
             if (!result.Succeeded)
             {
-                throw new Exception($"Credentials for '{request.Email} aren't valid'.");
+                response.Description=$"Credentials for '{request.Email} aren't valid'.";
+                return response;
             }
 
-            AuthenticationResponse response = new AuthenticationResponse
-            {
-                Id = Guid.Parse(user.Id),
-                Email = user.Email,
-                UserName = user.UserName
-            };
-
-
+            response.Id = Guid.Parse(user.Id);
+            response.Email = user.Email;
+            response.UserName = user.UserName;
+            response.Code = 1;
+           
             return response;
         }
 
         public async Task<RegistrationResponse> RegisterAsync(RegistrationRequest request)
         {
             var existingUser = await _userManager.FindByNameAsync(request.UserName);
-
+            var response = new RegistrationResponse();
+            response.Code = 0;
             if (existingUser != null)
             {
-                throw new Exception($"Username '{request.UserName}' already exists.");
+                response.Description = $"Username '{request.UserName}' already exists.";
+                return response;
             }
 
             var user = new ApplicationUser
@@ -69,16 +72,23 @@ namespace ChatRoom.Data.Services
 
                 if (result.Succeeded)
                 {
-                    return new RegistrationResponse() { UserId = user.Id };
+                    response.UserId = user.Id;
+                    response.Code = 1;
+                    return response;
                 }
                 else
                 {
-                    throw new Exception($"{result.Errors}");
+                    foreach (IdentityError error in result.Errors)
+                    {
+                        response.Description += $"{error.Description} \n";
+                    }
+                    return response;
                 }
             }
             else
             {
-                throw new Exception($"Email {request.Email } already exists.");
+                response.Description= $"Email {request.Email } already exists.";
+                return response;
             }
         }
     }
