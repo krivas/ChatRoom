@@ -1,21 +1,27 @@
 ﻿using ChatRoom.Domain;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace ChatRoom.Data.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager; 
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly JwtSettings _jwtSettings;
 
-        public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IOptions<JwtSettings> jwtSettings )
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _jwtSettings = jwtSettings.Value;
         }
 
         public async Task<AuthenticationResponse> AuthenticateAsync(AuthenticationRequest request)
@@ -38,11 +44,16 @@ namespace ChatRoom.Data.Services
                 return response;
             }
 
+            JwtSecurityToken jwtSecurityToken = await GenerateToken(user);
+
             response.Id = Guid.Parse(user.Id);
             response.Email = user.Email;
             response.UserName = user.UserName;
             response.Code = 1;
-           
+            response.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+            response.Expires = jwtSecurityToken.ValidTo;
+
+
             return response;
         }
 
@@ -90,6 +101,31 @@ namespace ChatRoom.Data.Services
                 response.Description= $"Email {request.Email } already exists.";
                 return response;
             }
+        }
+
+        private async Task<JwtSecurityToken> GenerateToken(ApplicationUser user)
+        {
+            var userClaims = await _userManager.GetClaimsAsync(user);
+
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("uid", user.Id)
+            }
+            ;
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+            var jwtSecurityToken = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),
+                signingCredentials: signingCredentials);
+            return jwtSecurityToken;
         }
     }
 }

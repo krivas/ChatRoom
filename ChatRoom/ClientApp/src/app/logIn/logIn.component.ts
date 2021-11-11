@@ -31,7 +31,11 @@ login()
             if(response.code===0)
               this.errorsMessage=response.description; 
             else if (response.code===1)
+            {
+              this.authService.SetTokenInfo(response);
               this.route.navigate(['/Chat']);
+            }
+              
             
           })
      

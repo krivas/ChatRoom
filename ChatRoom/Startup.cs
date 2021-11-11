@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using ChatRoom.Hubs;
+using ChatRoom.MiddleWare;
 
 namespace ChatRoom
 {
@@ -40,7 +41,7 @@ namespace ChatRoom
             {
                 configuration.RootPath = "ClientApp/dist";
             });
-            services.AddDataServicesRegistration();
+            services.AddDataServicesRegistration(Configuration);
         }
         private void AddSwagger(IServiceCollection services)
         {
@@ -78,8 +79,10 @@ namespace ChatRoom
                 app.UseSpaStaticFiles();
             }
 
-            app.UseRouting();
 
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

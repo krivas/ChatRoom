@@ -4,10 +4,12 @@ using System.Text;
 
 namespace ChatRoom.Data.Repositories
 {
-    interface IRepository<T>
+    public interface IRepository<T>
     {
-        void Create(T entity);
+        void  Create(T entity);
          //T Get(T entity);
         IEnumerable<T> GetAll();
+
+        void SaveChanges();
     }
 }

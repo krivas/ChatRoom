@@ -14,20 +14,14 @@ export class AuthActivator implements CanActivate {
 
   canActivate(
     next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Promise<boolean>  {
-      return this.authService.isLoggedIn().toPromise().then
-      (response=>{
-      if(response)
-        return Promise.resolve(true);
-      else 
-      {
-        this.router.navigate(['/login']);
-        return Promise.resolve(false);
-      }
+    state: RouterStateSnapshot): boolean  {
+
+       return this.authService.isLoggedIn();
+    
+  }
          
-    });
+}
 
       
-  }
   
-}
+  

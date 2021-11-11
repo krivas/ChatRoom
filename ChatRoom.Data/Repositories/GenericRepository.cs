@@ -8,17 +8,18 @@ namespace ChatRoom.Data.Repositories
 {
     public abstract class GenericRepository<T> : IRepository<T> where T : class
     {
-        private readonly IdentityDbContext _context;
+        private readonly ApplicationContext _context;
 
-        public GenericRepository(IdentityDbContext context) => _context = context;
-        public void Create(T entity)
+        public GenericRepository(ApplicationContext context) => _context = context;
+        public virtual void Create(T entity)
         {
             _context.Set<T>().Add(entity);
         }
  
-        public IEnumerable<T> GetAll()
+        public virtual IEnumerable<T> GetAll()
         {
             return _context.Set<T>().ToList();
         }
+        public void SaveChanges() => _context.SaveChanges();
     }
 }
